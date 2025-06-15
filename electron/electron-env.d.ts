@@ -15,13 +15,18 @@ declare namespace NodeJS {
      * │
      * ```
      */
-    APP_ROOT: string
+    APP_ROOT: string;
     /** /dist/ or /public/ */
-    VITE_PUBLIC: string
+    VITE_PUBLIC: string;
   }
 }
-
+interface ElectronAPI extends import('electron').IpcRenderer {
+  selectImage: () => Promise<{ path: string; base64: string } | null>;
+  saveImage: (defaultPath: string) => Promise<string | null>;
+  readFile: (path: string) => Promise<string>;
+  writeFile: (path: string, content: string) => Promise<void>;
+}
 // Used in Renderer process, expose in `preload.ts`
 interface Window {
-  ipcRenderer: import('electron').IpcRenderer
+  ipcRenderer: ElectronAPI;
 }

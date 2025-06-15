@@ -9,7 +9,7 @@
         <el-menu-item index="/main/image-sort-rename">图片处理</el-menu-item>
       </el-menu>
     </div>
-    <div class="flex-1 relative p-4 overflow-auto">
+    <div class="flex-1 relative overflow-auto">
       <!-- 主内容区 -->
       <RouterView />
     </div>

@@ -29,13 +29,7 @@
 
       <draggable v-model="mainImages" item-key="id" class="grid-container">
         <template #item="{ element }">
-          <div
-            class="relative group border-1 border-gray-200 rounded-lg overflow-hidden transition-all draggable-item"
-            :class="{
-              'border-blue-500': true,
-              'hover:border-blue-600': true,
-            }"
-          >
+          <div class="relative flex items-center">
             <span absolute top-1 right-1 z-10 w-4 h-4>
               <i class="i-mdi-delete text-red" />
             </span>
@@ -199,9 +193,10 @@ const handleFileChange = (event: Event, type: 'main' | 'sub') => {
 <style lang="scss" scoped>
 .grid-container {
   display: grid;
+  width: 100%;
+  padding: 0.5rem;
   min-height: 10rem;
-  grid-auto-columns: minmax(10rem, 10rem);
-  grid-auto-flow: column;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 10rem));
   gap: 16px;
   margin-top: 0.5rem;
   border: 1px solid #e5e7eb;

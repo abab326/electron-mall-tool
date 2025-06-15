@@ -33,8 +33,14 @@ function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
+      devTools: true
     },
   });
+
+  // 开发模式下自动打开开发者工具
+  if (VITE_DEV_SERVER_URL) {
+    win.webContents.openDevTools();
+  }
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {

@@ -30,7 +30,7 @@
       <draggable v-model="mainImages" item-key="id" class="grid-container">
         <template #item="{ element }">
           <div
-            class="relative group border-2 border-gray-200 rounded-lg overflow-hidden transition-all draggable-item"
+            class="relative group border-1 border-gray-200 rounded-lg overflow-hidden transition-all draggable-item"
             :class="{
               'border-blue-500': true,
               'hover:border-blue-600': true,
@@ -44,7 +44,7 @@
               <el-image
                 :src="element.url"
                 :preview-src-list="mainImages.map((img) => img.url)"
-                class="w-40 h-40 object-cover"
+                class="w-40 h-40 rounded-md object-cover"
               />
             </el-tooltip>
           </div>
@@ -199,9 +199,11 @@ const handleFileChange = (event: Event, type: 'main' | 'sub') => {
 <style lang="scss" scoped>
 .grid-container {
   display: grid;
+  min-height: 10rem;
   grid-auto-columns: minmax(10rem, 10rem);
   grid-auto-flow: column;
   gap: 16px;
   margin-top: 0.5rem;
+  border: 1px solid #e5e7eb;
 }
 </style>

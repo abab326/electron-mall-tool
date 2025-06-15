@@ -1,5 +1,4 @@
 /// <reference types="vite-plugin-electron/electron-env" />
-
 declare namespace NodeJS {
   interface ProcessEnv {
     /**
@@ -20,7 +19,7 @@ declare namespace NodeJS {
     VITE_PUBLIC: string;
   }
 }
-interface ElectronAPI extends import('electron').IpcRenderer {
+interface ElectronAPI {
   selectImage: () => Promise<{ path: string; base64: string } | null>;
   saveImage: (defaultPath: string) => Promise<string | null>;
   readFile: (path: string) => Promise<string>;

@@ -27,5 +27,22 @@ interface ElectronAPI {
 }
 // Used in Renderer process, expose in `preload.ts`
 interface Window {
-  ipcRenderer: ElectronAPI;
+  electronAPI: {
+    getAppVersion: () => Promise<string>,
+    selectFolder: () => Promise<string>,
+    selectImages: () => Promise<string[]>,
+    batchRenameImages: (params: { 
+      images: string[], 
+      targetDir: string, 
+      namePattern: string 
+    }) => Promise<{
+      success: boolean,
+      results?: Array<{
+        original: string,
+        newPath: string
+      }>,
+      error?: string
+    }>,
+    getImagePath: () => Promise<string>
+  }
 }

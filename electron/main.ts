@@ -1,20 +1,12 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import  {setupElectronAPIs} from './api';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// The built directory structure
-//
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
-// │ │ ├── main.js
-// │ │ └── preload.mjs
-// │
 process.env.APP_ROOT = path.join(__dirname, '..');
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -36,11 +28,6 @@ function createWindow() {
       devTools: true
     },
   });
-
-  // 开发模式下自动打开开发者工具
-  if (VITE_DEV_SERVER_URL) {
-    win.webContents.openDevTools();
-  }
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
@@ -73,14 +60,5 @@ app.on('activate', () => {
     createWindow();
   }
 });
-// 定义前端可调用方法
-ipcMain.handle('get-image-path', async () => {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
-    properties: ['openDirectory'],
-  });
-  if (canceled) {
-    return null;
-  }
-  return filePaths[0];
-});
+setupElectronAPIs()
 app.whenReady().then(createWindow);

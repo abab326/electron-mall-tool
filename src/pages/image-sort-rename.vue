@@ -38,7 +38,7 @@
               <el-image
                 :src="element.url"
                 :preview-src-list="mainImages.map((img) => img.url)"
-                class="w-40 h-40 rounded-md object-cover"
+                class="w-full h-full rounded-md object-cover"
               />
             </el-tooltip>
           </div>
@@ -87,7 +87,7 @@
               <el-image
                 :src="element.url"
                 :preview-src-list="subImages.map((img) => img.url)"
-                class="w-40 h-40 object-cover"
+                class="w-full h-full object-cover"
               />
             </el-tooltip>
           </div>
@@ -195,8 +195,8 @@ const handleFileChange = (event: Event, type: 'main' | 'sub') => {
   display: grid;
   width: 100%;
   padding: 0.5rem;
-  min-height: 10rem;
-  grid-template-columns: repeat(auto-fill, minmax(10rem, 10rem));
+  min-height: 110px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 110px));
   gap: 16px;
   margin-top: 0.5rem;
   border: 1px solid #e5e7eb;

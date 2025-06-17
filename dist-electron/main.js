@@ -53,6 +53,7 @@ class IpcManager {
     return null;
   }
   // 批量重命名图片到指定目录
+  // 优化：添加输入验证，处理异步操作使用 Promise.all 提高效率，添加错误处理
   async handleBatchRenameImages(event, options) {
     if (!options.images || options.images.length === 0) {
       return;

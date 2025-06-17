@@ -37,21 +37,22 @@ class IpcManager {
     });
 
     if (!result.canceled && result.filePaths.length > 0) {
-      return result.filePaths.map((item) => {
-        const data = fs.readFileSync(item);
-        const mimeType = this.getMimeType(item); // 根据扩展名获取MIME类型
-        return {
-          id: Date.now().toString(),
-          path: item,
-          name: path.basename(item),
-          url: `data:${mimeType};base64,${data.toString('base64')}`,
-        };
-      });
+      return Promise.all(
+        result.filePaths.map(async (item) => {
+          // 处理图片文件
+          const data = fs.readFileSync(item);
+          const mimeType = this.getMimeType(item);
+          return {
+            id: Date.now().toString(),
+            name: path.basename(item),
+            url: `data:${mimeType};base64,${data.toString('base64')}`,
+          };
+        })
+      );
     }
     return null;
   }
   // 批量重命名图片到指定目录
-  // 优化：添加输入验证，处理异步操作使用 Promise.all 提高效率，添加错误处理
   async handleBatchRenameImages(
     event: any,
     options: BatchRenameImagesOptions

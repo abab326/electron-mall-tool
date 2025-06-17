@@ -19,13 +19,7 @@ declare namespace NodeJS {
     VITE_PUBLIC: string;
   }
 }
-interface ElectronAPI {
-  selectImage: () => Promise<{ path: string; base64: string } | null>;
-  saveImage: (defaultPath: string) => Promise<string | null>;
-  readFile: (path: string) => Promise<string>;
-  writeFile: (path: string, content: string) => Promise<void>;
-}
 // Used in Renderer process, expose in `preload.ts`
 interface Window {
-  ipcRenderer: ElectronAPI;
+  ipcRenderer: typeof import('./public-api').publicAPI;
 }

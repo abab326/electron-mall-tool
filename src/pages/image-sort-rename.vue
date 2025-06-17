@@ -17,20 +17,20 @@
         @click="openFileDialog('main')"
       >
         选择图片
-        <input
-          ref="mainFileInput"
-          type="file"
-          multiple
-          accept="image/*"
-          class="hidden"
-          @change="(e) => handleFileChange(e, 'main')"
-        />
       </el-button>
 
       <draggable v-model="mainImages" item-key="id" class="grid-container">
         <template #item="{ element }">
           <div class="relative flex items-center">
-            <span absolute top-1 right-1 z-10 w-4 h-4>
+            <span
+              absolute
+              top-1
+              right-1
+              z-10
+              w-4
+              h-4
+              @click="removeImage(element.id, 'sub')"
+            >
               <i class="i-mdi-delete text-red" />
             </span>
 
@@ -56,14 +56,6 @@
         @click="openFileDialog('sub')"
       >
         选择图片
-        <input
-          ref="subFileInput"
-          type="file"
-          multiple
-          accept="image/*"
-          class="hidden"
-          @change="(e) => handleFileChange(e, 'sub')"
-        />
       </el-button>
 
       <draggable v-model="subImages" item-key="id" class="grid-container">
@@ -79,7 +71,7 @@
               type="danger"
               size="small"
               circle
-              @click.stop="removeImage(element.id, 'sub')"
+              @click="removeImage(element.id, 'sub')"
             >
               <i class="i-ep-delete" />
             </el-button>
@@ -106,18 +98,26 @@ type ImageItem = {
   id: string;
   url: string;
   name: string;
+  path: string;
 };
 const imagePrefix = ref('');
 const mainImages = ref<ImageItem[]>([]);
 const subImages = ref<ImageItem[]>([]);
-const mainFileInput = ref<HTMLInputElement | null>(null);
-const subFileInput = ref<HTMLInputElement | null>(null);
 
 const openFileDialog = (type: 'main' | 'sub') => {
   if (type === 'main') {
-    mainFileInput.value?.click();
+    window.ipcRenderer.selectImage().then((res) => {
+      if (res) {
+        console.log('主图选择', res);
+        mainImages.value.push(...res);
+      }
+    });
   } else {
-    subFileInput.value?.click();
+    window.ipcRenderer.selectImage().then((res) => {
+      if (res) {
+        subImages.value.push(...res);
+      }
+    });
   }
 };
 
@@ -126,41 +126,21 @@ const saveImages = async () => {
     ElMessage.warning('请先输入图片前缀');
     return;
   }
-
-  try {
-    const { filePaths } = await window.ipcRenderer.getImagePath({
-      properties: ['openDirectory'],
-    });
-
-    if (filePaths && filePaths[0]) {
-      const saveDir = `${filePaths[0]}/upload`;
-
-      // 保存主图
-      mainImages.value.forEach((img, index) => {
-        const newName = `${imagePrefix.value}_main_${index + 1}.${img.name
-          .split('.')
-          .pop()}`;
-        window.ipcRenderer.saveImage({
-          url: img.url,
-        });
-      });
-
-      // 保存副图
-      subImages.value.forEach((img, index) => {
-        const newName = `${imagePrefix.value}_sub_${index + 1}.${img.name
-          .split('.')
-          .pop()}`;
-        window.electronAPI.saveImage({
-          url: img.url,
-          dir: saveDir,
-          filename: newName,
-        });
-      });
-
-      ElMessage.success('图片保存成功');
-    }
-  } catch (error) {
-    ElMessage.error('保存失败: ' + error.message);
+  if (mainImages.value.length) {
+    const options = {
+      prefix: imagePrefix.value,
+      suffix: 'main',
+      images: mainImages.value.map((img) => img.path),
+    };
+    window.ipcRenderer.batchRenameImages(options);
+  }
+  if (subImages.value.length) {
+    const options = {
+      prefix: imagePrefix.value,
+      suffix: 'sub',
+      images: subImages.value.map((img) => img.path),
+    };
+    window.ipcRenderer.batchRenameImages(options);
   }
 };
 
@@ -169,23 +149,6 @@ const removeImage = (id: string, type: 'main' | 'sub') => {
   const index = targetArray.value.findIndex((img) => img.id === id);
   if (index !== -1) {
     targetArray.value.splice(index, 1);
-  }
-};
-
-const handleFileChange = (event: Event, type: 'main' | 'sub') => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    const targetArray = type === 'main' ? mainImages : subImages;
-    Array.from(input.files).forEach((file) => {
-      const url = URL.createObjectURL(file);
-      targetArray.value.push({
-        id: Date.now().toString(),
-        url,
-        name: file.name,
-      });
-    });
-    // 重置input值以允许重复选择相同文件
-    input.value = '';
   }
 };
 </script>

@@ -1,6 +1,8 @@
 import { ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import * as XLSX from 'xlsx';
+
 import { BatchRenameImagesOptions } from './types/api';
 
 class IpcManager {
@@ -8,7 +10,10 @@ class IpcManager {
   handlers: { [key: string]: (event: any, ...args: any[]) => any };
   constructor() {
     this.handlers = {
+      'dialog:selectDir': this.handleSelectDir,
       'dialog:selectImage': this.handleSelectImage,
+      'dialog:selectExcel': this.handleSelectExcel,
+      'parse-excel': this.handleParseExcel,
       'batch-rename-images': this.handleBatchRenameImages,
     };
   }
@@ -52,6 +57,41 @@ class IpcManager {
     }
     return null;
   }
+  // 选择Excel文件
+  async handleSelectExcel() {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Excel Files', extensions: ['xlsx', 'xls'] }],
+    });
+
+    if (!result.canceled && result.filePaths.length > 0) {
+      return result.filePaths[0];
+    }
+    return null;
+  }
+  // 选择目录
+  async handleSelectDir() {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+      return result.filePaths[0];
+    }
+    return null;
+  }
+  // 解析Excel文件
+  async handleParseExcel(event: any, filePath: string) {
+    try {
+      const data = fs.readFileSync(filePath);
+
+      const workbook = XLSX.read(data, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+      console.log(jsonData);
+    } catch (err) {
+      console.error('解析失败:', err);
+    }
+  }
   // 批量重命名图片到指定目录
   async handleBatchRenameImages(
     event: any,
@@ -62,8 +102,8 @@ class IpcManager {
       return;
     }
     // 重命名目录为 图片文件夹下的upload 文件夹
-    const dir = path.dirname(options.images[0]);
-    const uploadDir = path.join(dir, 'upload');
+    const dest = options.dir || path.dirname(options.images[0]);
+    const uploadDir = path.join(dest, 'upload');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir);
     }

@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@iconify/json": "^2.2.347",
+    "@types/xlsx": "^0.0.36",
     "@vitejs/plugin-vue": "^5.0.4",
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
